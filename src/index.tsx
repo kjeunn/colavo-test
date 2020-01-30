@@ -1,14 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { Provider } from "mobx-react";
 import { BrowserRouter } from "react-router-dom";
-import App from "./shared/App";
+import App from "./App";
 import * as serviceWorker from "./serviceWorker";
+import ItemStore from "./stores/itemStore";
 import "bootstrap/dist/css/bootstrap.css";
 
+const itemStore = new ItemStore();
+
 ReactDOM.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>,
+  <Provider itemStore={itemStore}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>,
   document.getElementById("root")
 );
 
