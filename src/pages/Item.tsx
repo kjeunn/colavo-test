@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { Input, Label } from "reactstrap";
+import { Input } from "reactstrap";
+import { observer, inject } from "mobx-react";
+import ItemStore from "../stores/itemStore";
 
 interface ItemDetail {
   name: string;
@@ -15,14 +17,15 @@ interface ItemState {
   };
 }
 
-export default class Item extends Component<ItemState> {
+interface InjectedProps {
+  itemStore: ItemStore;
+}
+
+@inject("itemStore")
+@observer
+export default class Item extends Component<InjectedProps, ItemState> {
   state: ItemState = {
     items: {}
-  };
-
-  toggle = (item: ItemDetail) => {
-    item.isChecked = !item.isChecked;
-    this.setState(this.state);
   };
 
   async componentDidMount() {
@@ -38,6 +41,29 @@ export default class Item extends Component<ItemState> {
       items: itemList
     });
   }
+
+  toggle = (item: ItemDetail) => {
+    item.isChecked = !item.isChecked;
+    this.setState(this.state);
+  };
+
+  changedSelectCount = (item: ItemDetail, id: number) => {
+    const selectedCount = (document.getElementById(
+      `select-count-${id}`
+    ) as HTMLSelectElement).value;
+    item.count = Number(selectedCount);
+    this.setState(this.state);
+  };
+
+  handleClickedCompleteButton = () => {
+    const { itemStore } = this.props;
+    for (let key in this.state.items) {
+      if (this.state.items[key].isChecked) {
+        itemStore.addItem(this.state.items[key]);
+      }
+    }
+  };
+
   render() {
     return (
       <div className="container">
@@ -52,38 +78,42 @@ export default class Item extends Component<ItemState> {
             </div>
             {Object.values(this.state.items).map((item, id) => {
               return (
-                <div className="container">
+                <div className="container" key={id}>
                   <div
                     className="row"
                     style={{ width: "auto" }}
-                    key={id}
                     onClick={() => this.toggle(item)}
                   >
-                    <div className="col-xs-6 col-md-4">
-                      <Label>
-                        <Input
-                          type="checkbox"
-                          id="blankCheckbox"
-                          value="option1"
-                          aria-label="..."
-                          readOnly
-                          checked={item.isChecked}
-                        />
-                      </Label>
+                    <div
+                      className="col-xs-6 col-md-4"
+                      style={{ height: "21px" }}
+                    >
+                      <Input
+                        type="checkbox"
+                        id="blankCheckbox"
+                        value="option1"
+                        aria-label="..."
+                        readOnly
+                        checked={item.isChecked}
+                      />
                     </div>
                     <div className="col-xs-6 col-md-4">
-                      <h5>{`${item.name}`}</h5>
-                      {`${item.price}`}
+                      <h5>{item.name}</h5>
+                      {item.price}
                     </div>
                   </div>
                   {item.isChecked && (
                     <div className="col-xs-6 col-md-4">
-                      <select className="form-control">
-                        <option> {`${item.count}`}</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
+                      <select
+                        id={`select-count-${id}`}
+                        className="form-control"
+                        onChange={() => this.changedSelectCount(item, id)}
+                      >
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
                       </select>
                     </div>
                   )}
@@ -96,7 +126,11 @@ export default class Item extends Component<ItemState> {
               <small>서비스를 선택하세요(여러 개 선택가능)</small>
             </h6>
             <Link to="/cart">
-              <Input type="button" value="완료" />
+              <Input
+                type="button"
+                value="완료"
+                onClick={this.handleClickedCompleteButton}
+              />
             </Link>
           </div>
         </div>
