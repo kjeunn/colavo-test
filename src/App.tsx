@@ -1,6 +1,6 @@
 import React from "react";
 import { Route } from "react-router-dom";
-import { PaymentList, Item, Discount } from "../pages";
+import { PaymentList, Item, Discount } from "./pages";
 
 function App() {
   return (
