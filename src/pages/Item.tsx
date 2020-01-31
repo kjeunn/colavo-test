@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "reactstrap";
 import { observer, inject } from "mobx-react";
-import ItemStore from "../stores/itemStore";
+import RootStore from "../stores/index";
 
 interface ItemDetail {
   name: string;
@@ -18,10 +18,10 @@ interface ItemState {
 }
 
 interface InjectedProps {
-  itemStore: ItemStore;
+  root: RootStore;
 }
 
-@inject("itemStore")
+@inject("root")
 @observer
 export default class Item extends Component<InjectedProps, ItemState> {
   state: ItemState = {
@@ -56,7 +56,7 @@ export default class Item extends Component<InjectedProps, ItemState> {
   };
 
   handleClickedCompleteButton = () => {
-    const { itemStore } = this.props;
+    const itemStore = this.props.root.item;
     for (let key in this.state.items) {
       if (this.state.items[key].isChecked) {
         itemStore.addItem(this.state.items[key]);

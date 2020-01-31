@@ -1,4 +1,5 @@
 import { autobind } from "core-decorators";
+import RootStore from "./index";
 
 interface ItemDetail {
   name: string;
@@ -6,7 +7,7 @@ interface ItemDetail {
   count: number;
 }
 
-interface Items {
+export interface Items {
   [key: string]: ItemDetail;
 }
 
@@ -14,6 +15,11 @@ interface Items {
 export default class ItemStore {
   items: Items = {};
   totalPrice: number = 0;
+  root: RootStore;
+
+  constructor(root: RootStore) {
+    this.root = root;
+  }
 
   addItem(item: ItemDetail) {
     this.items[item.name] = item;
