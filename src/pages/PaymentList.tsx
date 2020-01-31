@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "reactstrap";
 import { observer, inject } from "mobx-react";
-import ItemStore from "../stores/itemStore";
+import RootStore from "../stores/index";
 
 interface PaymentListDetail {
   name: string;
@@ -11,17 +11,17 @@ interface PaymentListDetail {
 }
 
 interface InjectedProps {
-  itemStore: ItemStore;
+  root: RootStore;
 }
 
-@inject("itemStore")
+@inject("root")
 @observer
 export default class PaymentList extends Component<
   InjectedProps,
   PaymentListDetail
 > {
   changedSelectCount = (item: PaymentListDetail, id: number) => {
-    const { itemStore } = this.props;
+    const itemStore = this.props.root.item;
     const selectedCount = (document.getElementById(
       `select-count-${id}`
     ) as HTMLSelectElement).value;
@@ -33,13 +33,25 @@ export default class PaymentList extends Component<
     this.setState({});
   };
 
+  changedSelectItem = (discount: PaymentListDetail, id: number) => {
+    // const { itemStore } = this.props;
+    // const selectedItem = (document.getElementById(
+    //   `select-item-${id}`
+    // ) as HTMLSelectElement).value;
+    // if (selectedItem === "삭제") {
+    //   itemStore.de;
+    // }
+  };
+
   render() {
-    const { itemStore } = this.props;
+    const itemStore = this.props.root.item;
+    const discountStore = this.props.root.discount;
     return (
       <div className="container">
         <div className="row align-self-center h-100">
           <div className="col-xs-6 col-md-4" />
           <div className="col-xs-6 col-md-4 p-3 m-3 justify-content-between">
+            <h5 className="text-center">고객</h5>
             <Link to="item">
               <Input type="button" value="시술" />
             </Link>
@@ -48,7 +60,6 @@ export default class PaymentList extends Component<
             </Link>
           </div>
           {Object.values(itemStore.items).map((item, id) => {
-            console.log(item.count);
             return (
               <div className="container" key={id}>
                 <div className="row">
@@ -77,6 +88,34 @@ export default class PaymentList extends Component<
                       <option value="5" selected={item.count === 5}>
                         5
                       </option>
+                      <option value="삭제" selected={false}>
+                        삭제
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {Object.values(discountStore.discounts).map((discount, id) => {
+            return (
+              <div className="container" key={id}>
+                <div className="row">
+                  <div className="col-xs-6 col-md-4">
+                    <h5>{discount.name}</h5>
+                    {`(${discount.rate * 100}%)`}
+                  </div>
+                  <div className="col-xs-6 col-md-4">
+                    <label>수정</label>
+                    <select
+                      id={`select-item-${id}`}
+                      className="form-control"
+                      multiple
+                      // onChange={() => this.changedSelectItem(discount, id)}
+                    >
+                      {Object.values(discount.items).map(item => {
+                        return <option value={item.name}>{item.name}</option>;
+                      })}
                       <option value="삭제" selected={false}>
                         삭제
                       </option>
